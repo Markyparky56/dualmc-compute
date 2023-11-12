@@ -13,5 +13,33 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\FastNoise">
+      <UniqueIdentifier>{da11d6ad-8a2c-4b05-b160-7bdcd8e6b8b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FastNoise">
+      <UniqueIdentifier>{56670adb-3570-4045-941d-71870a5eba6f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dualmc-compute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FastNoise\FastNoise.cpp">
+      <Filter>Source Files\FastNoise</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dualmc-compute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dualmc-dualpoints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FastNoise\FastNoise.h">
+      <Filter>Header Files\FastNoise</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
