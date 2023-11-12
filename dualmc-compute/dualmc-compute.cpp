@@ -149,6 +149,10 @@ glm::vec3 DualMCComputeFramework::calculateDualPoint(glm::ivec3 cellPos, float i
 {
   // Initialise the point with lower voxel coordinates
   glm::vec3 outPos = glm::vec3(cellPos);
+  
+  // Return here to generate a cubed surface, the rest of this function moves the cell's feature point relative
+  // to the surrounding cells
+  //return outPos;
 
   // Compute the dual point as the mean of the face vertices belonging to the original marching cubes face
   glm::vec3 p = glm::vec3(0.0);
