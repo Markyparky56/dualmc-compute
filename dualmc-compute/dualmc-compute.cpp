@@ -10,14 +10,11 @@ DualMCComputeFramework::DualMCComputeFramework()
 
 glm::uint DualMCComputeFramework::getProblematicConfigByteValue(int byteIndex)
 {
-  // Calculate the starting bit position for the desired byte
-  int startingBit = byteIndex * 8;
-
   // Determine the index of the uint in the array
-  int uintIndex = startingBit / 32;
+  int uintIndex = byteIndex / 4;
 
   // Calculate the bit offset within the uint
-  int bitOffset = startingBit % 32;
+  int bitOffset = (byteIndex % 4)*8;
 
   // Shift to the starting bit position within the uint and mask out the byte
   return (DualPoints.ProblematicConfigs[uintIndex] >> bitOffset) & 0xFFu;
@@ -42,30 +39,23 @@ glm::uint DualMCComputeFramework::morton3D(glm::ivec3 v)
   v = (v | (v << 4)) & 0x30C3;
   v = (v | (v << 2)) & 0x9249;
   // Interleave
-  glm::uint code = (v.x) | ((v.y) << 1) | ((v.z) << 2);
+  const glm::uint code = (v.x) | ((v.y) << 1) | ((v.z) << 2);
   assert(code < VolumeDataSize);
 
   return code;
 }
 
-//glm::uint DualMCComputeFramework::getData(glm::uint shortIndex)
-//{
-//  // Calculate the starting short position
-//  glm::uint startingBit = shortIndex * 16;
-//
-//  // index of the corresponding uint in the array
-//  glm::uint uintIndex = startingBit / 32;
-//
-//  // Calculate the bit offset within the uint
-//  glm::uint bitOffset = startingBit % 32;
-//
-//  // Shift to the starting bit position within the uint and mask out the short
-//  return (VolumeData.Data[uintIndex] >> bitOffset) & 0xFFFFu;
-//}
-
 glm::uint DualMCComputeFramework::getData(glm::uint mortonCode)
 {
-  return VolumeData.Data[mortonCode];
+  // 2-shorts to a uint
+  const glm::uint dataIdx = mortonCode / 2;
+  // Select which short we're fetching
+  const glm::uint shortIdx = mortonCode % 2;
+  // If second short, we need to shift
+  const glm::uint offset = 16 * shortIdx;
+
+  // Retrieve data and mask out the short
+  return (VolumeData.Data[dataIdx] >> offset) & 0xFFFFu;
 }
 
 int DualMCComputeFramework::getCellCode(glm::ivec3 cellPos, float iso)

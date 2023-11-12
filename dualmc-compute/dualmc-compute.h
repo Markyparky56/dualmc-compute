@@ -56,15 +56,11 @@ protected:
   // 6-bit morton encoding bumps us up to 63, even though we only use 36 in each dimension
   struct VolumeDataBuffer
   {
-    //glm::uint Data[36*36*36];
-    //std::array<glm::uint, 36 * 36 * 36> Data;
     std::array<glm::uint, VolumeDataSize> Data;
   } VolumeData;
 
   struct DualPointsListBuffer
   {
-    /*glm::uint DualPointsList[512];
-    glm::uint ProblematicConfigs[64];*/
     std::array<glm::uint, 512> DualPointsList;
     std::array<glm::uint, 64> ProblematicConfigs;
   } DualPoints;
@@ -75,7 +71,6 @@ protected:
   {
     // Worst case, every cell produces 18 triangles... somehow
     // Don't think this is possible
-    //Triangle Triangles[34 * 34 * 34 * 18];
     std::array<Triangle, 34*34*34*18> Triangles;
   } TriangleOutput;
 };

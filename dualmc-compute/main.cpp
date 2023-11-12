@@ -13,31 +13,31 @@ int main()
   FastNoise noise;
   noise.SetSeed(42424242);
   noise.SetFractalOctaves(5);
-  noise.SetFractalGain(0.75);
+  noise.SetFractalGain(0.5);
   std::unique_ptr<DualMCComputeFramework> computeFramework = std::make_unique<DualMCComputeFramework>();
 
-  auto* volumeData = new std::array<glm::uint, DualMCComputeFramework::VolumeDataSize>();
-  glm::uint max = 0;
+  // Fill short array
+  auto volumeData = new std::array<unsigned short, DualMCComputeFramework::VolumeDataSize * 2>();
+  volumeData->fill(0);
   for (int z = 0; z < 36; ++z)
   {
     for (int y = 0; y < 36; ++y)
     {
       for (int x = 0; x < 36; ++x)
       {
-        const glm::uint idx = computeFramework->morton3D(glm::ivec3(x, y, z));
-        max = glm::max(idx, max);
+        const glm::uint mortonCode = computeFramework->morton3D(glm::ivec3(x, y, z));
 
         float val = noise.GetSimplexFractal((float)x, (float)y, (float)z);
 
         // Clamp, shift range, covert to short
         val = glm::clamp(val, -1.f, 1.f);
         val = (val * 0.5f) + 0.5f;
-        (*volumeData)[idx] = static_cast<uint16_t>(val * std::numeric_limits<uint16_t>::max());
-        // TODO: reconcile morton code and short packing
+        const uint16_t shortVal = static_cast<uint16_t>(val * std::numeric_limits<uint16_t>::max());
+        (*volumeData)[mortonCode] = shortVal;
       }
     }
   }
-  computeFramework->SetData(*volumeData);
+  computeFramework->SetData(*reinterpret_cast<std::array<glm::uint, DualMCComputeFramework::VolumeDataSize>*>(volumeData));
 
   computeFramework->execute();
 
