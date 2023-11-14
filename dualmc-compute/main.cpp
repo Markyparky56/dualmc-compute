@@ -17,7 +17,7 @@ int main()
   std::unique_ptr<DualMCComputeFramework> computeFramework = std::make_unique<DualMCComputeFramework>();
 
   // Fill short array
-  auto volumeData = new std::array<unsigned short, DualMCComputeFramework::VolumeDataSize * 2>();
+  auto volumeData = std::make_unique<std::array<unsigned short, DualMCComputeFramework::VolumeDataSize * 2>>();
   volumeData->fill(0);
   for (int z = 0; z < 36; ++z)
   {
@@ -37,7 +37,7 @@ int main()
       }
     }
   }
-  computeFramework->SetData(*reinterpret_cast<std::array<glm::uint, DualMCComputeFramework::VolumeDataSize>*>(volumeData));
+  computeFramework->SetData(*reinterpret_cast<std::array<glm::uint, DualMCComputeFramework::VolumeDataSize>*>(volumeData.get()));
 
   computeFramework->execute();
 
