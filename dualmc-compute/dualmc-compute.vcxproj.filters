@@ -30,6 +30,9 @@
     <ClCompile Include="..\FastNoise\FastNoise.cpp">
       <Filter>Source Files\FastNoise</Filter>
     </ClCompile>
+    <ClCompile Include="svdqef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dualmc-compute.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="..\FastNoise\FastNoise.h">
       <Filter>Header Files\FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="svdqef.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -134,11 +134,13 @@
     <ClCompile Include="..\FastNoise\FastNoise.cpp" />
     <ClCompile Include="dualmc-compute.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="svdqef.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\FastNoise\FastNoise.h" />
     <ClInclude Include="dualmc-compute.h" />
     <ClInclude Include="dualmc-dualpoints.h" />
+    <ClInclude Include="svdqef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
