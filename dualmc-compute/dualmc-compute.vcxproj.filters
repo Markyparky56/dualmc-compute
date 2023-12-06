@@ -33,6 +33,9 @@
     <ClCompile Include="svdqef.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="glm-noise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dualmc-compute.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files\FastNoise</Filter>
     </ClInclude>
     <ClInclude Include="svdqef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glm-noise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
