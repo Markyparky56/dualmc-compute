@@ -1,3 +1,4 @@
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <memory>
 #include <limits>
 #include <cstdio>
@@ -18,13 +19,17 @@ int main()
 {
   std::vector<unsigned char> greyscaleNoise;
   std::vector<unsigned char> analyticalnoiseDerivs;
+  greyscaleNoise.reserve(512 * 512);
+  analyticalnoiseDerivs.reserve(512 * 512 * 3);
   //std::vector<unsigned char> noiseDerivs;
 
   for (int y = 0; y < 512; ++y)
   {
     for (int x = 0; x < 512; ++x)
     {
-      glm::vec3 p = glm::vec3((float)x * 0.01f, (float)y * 0.01f, 0.234f)/* + glm::vec3(0.1234f)*/;
+      glm::vec3 p = glm::vec3((float)x * 0.01f, (float)y * 0.01f, 4242.234f)/* + glm::vec3(0.1234f)*/;
+      //glm::vec4 noise = NoiseBillowGrads(p, 0, 5, 2.f, 0.5f);
+      //glm::vec4 noise = NoiseFBMGrads(p, 0, 5, 2.f, 0.5f);
       glm::vec4 noise = SimplexNoise3DGrad(p, 0);
 
       float v = (noise.x + 1.f) * 0.5f;
@@ -32,8 +37,6 @@ int main()
       greyscaleNoise.push_back(grey);
 
       glm::vec3 deriv = glm::yzw(noise);
-      //float length = glm::length(deriv);
-      //deriv = (length == 0) ? glm::vec3(0, 0, 0) : deriv / length;
       deriv = (deriv * 0.5f) + 0.5f;
       glm::ivec3 iDeriv = deriv * 255.f;
       analyticalnoiseDerivs.push_back((unsigned char)iDeriv.x);

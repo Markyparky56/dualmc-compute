@@ -1,3 +1,4 @@
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include "svdqef.h"
 #include "glm/gtx/vec_swizzle.hpp"
 

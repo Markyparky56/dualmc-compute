@@ -1,7 +1,9 @@
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include "glm-noise.h"
 #include "glm/vec2.hpp"
 #include "glm/geometric.hpp"
 #include "glm/gtx/vec_swizzle.hpp"
+#include <cassert>
 
 const unsigned char perm[512] = {
   151, 160, 137, 91, 90, 15,
@@ -32,7 +34,24 @@ const unsigned char perm[512] = {
   49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
   138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
 };
-const unsigned char perm12[256] = {
+const unsigned char perm12[512] = {
+    7, 4, 5, 7,	6, 3,11, 1, 9,11, 0, 5, 2, 5, 7, 9,
+    8, 0, 7, 6, 9,10, 8, 3, 1, 0, 9,10,11,10, 6, 4,
+    7, 0, 6, 3, 0, 2, 5, 2,10, 0, 3,11, 9,11,11, 8,
+    9, 9, 9, 4, 9, 5, 8, 3, 6, 8, 5, 4, 3, 0, 8, 7,
+    2, 9,11, 2, 7, 0, 3,10, 5, 2, 2, 3,11, 3, 1, 2,
+    0, 7, 1, 2, 4, 9, 8, 5, 7,10, 5, 4, 4, 6,11, 6,
+    5, 1, 3, 5, 1, 0, 8, 1, 5, 4, 0, 7, 4, 5, 6, 1,
+    8, 4, 3,10, 8, 8, 3, 2, 8, 4, 1, 6, 5, 6, 3, 4,
+    4, 1,10,10, 4, 3, 5,10, 2, 3,10, 6, 3,10, 1, 8,
+    3, 2,11,11,11, 4,10, 5, 2, 9, 4, 6, 7, 3, 2, 9,
+    11,8, 8, 2, 8,10, 7,10, 5, 9, 5,11,11, 7, 4, 9,
+    9,10, 3, 1, 7, 2, 0, 2, 7, 5, 8, 4,10, 5, 4, 8,
+    2, 6, 1, 0,11,10, 2, 1,10, 6, 0, 0,11,11, 6, 1,
+    9, 3, 1, 7, 9, 2,11,11, 1, 0,10, 7, 1, 7,10, 1,
+    4, 0, 0, 8, 7, 1, 2, 9, 7, 4, 6, 2, 6, 8, 1, 9,
+    6, 6, 7, 5, 0, 0, 3, 9, 8, 3, 6, 6,11, 1, 0, 0,
+    // Repeat
     7, 4, 5, 7,	6, 3,11, 1, 9,11, 0, 5, 2, 5, 7, 9,
     8, 0, 7, 6, 9,10, 8, 3, 1, 0, 9,10,11,10, 6, 4,
     7, 0, 6, 3, 0, 2, 5, 2,10, 0, 3,11, 9,11,11, 8,
@@ -80,18 +99,15 @@ const float Gradients3D[3 * 12] = {
 //    0.f, -1.f, -1.f
 //};
 
-static inline int permuteHash(int i)
-{
-    return perm[i & 0xFF];
-}
-
-static inline int permuteHashOffset(int i, int offset)
-{
-  return perm[((int)i & 0xFF) + (offset & 0xFF)];
-}
-
 static inline int Index3D(glm::ivec3 p, int seed)
 {
+  assert((p.z & 0xff) + (seed & 0xff) < 512);
+  assert(perm[(p.z & 0xff) + (seed & 0xff)] < 256);
+  assert((p.y & 0xff) + perm[(p.z & 0xff) + (seed & 0xff)] < 512);
+  assert(perm[(p.y & 0xff) + perm[(p.z & 0xff) + (seed & 0xff)]] < 256);
+  assert((p.x & 0xff) + perm[(p.y & 0xff) + perm[(p.z & 0xff) + (seed & 0xff)]] < 512);
+  assert(perm12[(p.x & 0xff) + perm[(p.y & 0xff) + perm[(p.z & 0xff) + (seed & 0xff)]]] < 12);
+
   return perm12[(p.x & 0xff) + perm[(p.y & 0xff) + perm[(p.z & 0xff) + (seed & 0xff)]]]*3;
 }
 
@@ -178,7 +194,7 @@ glm::vec4 SimplexNoise3DGrad(const glm::vec3 p, int seed)
 
   // GLSL version uses 105 here?
   const float valueScalar = 46.f;
-  const float derivScalar = 7.9f;
+  const float derivScalar = 7.4f;
 
   // x = noise value
   // y,z,w = derivative
