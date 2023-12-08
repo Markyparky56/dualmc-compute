@@ -154,52 +154,10 @@ glm::vec4 SimplexNoise3DGrad(const glm::vec3 p, int seed)
   glm::vec3 iSimplex1 = glm::min(g, glm::zxy(l));
   glm::vec3 iSimplex2 = glm::max(g, glm::zxy(l));
 
-  //// Calculate simplex offsets
-  //glm::vec3 iSimplex1, iSimplex2;
-  //if (surf0.x > surf0.y)
-  //{
-  //	if (surf0.y >= surf0.z)
-  //	{
-  //		iSimplex1 = glm::vec3(1, 0, 0);
-  //		iSimplex2 = glm::vec3(1, 1, 0);
-  //	}
-  //	else if (surf0.x >= surf0.z)
-  //	{
-  //		iSimplex1 = glm::vec3(1, 0, 0);
-  //		iSimplex2 = glm::vec3(1, 0, 1);
-  //	}
-  //	else
-  //	{
-  //		iSimplex1 = glm::vec3(0, 0, 1);
-  //		iSimplex2 = glm::vec3(1, 0, 1);
-  //	}
-  //}
-  //else // x < y
-  //{
-  //	if (surf0.y < surf0.z)
-  //	{
-  //		iSimplex1 = glm::vec3(0, 0, 1);
-  //		iSimplex2 = glm::vec3(0, 1, 1);
-  //	}
-  //	else if (surf0.x < surf0.z)
-  //	{
-  //		iSimplex1 = glm::vec3(0, 1, 0);
-  //		iSimplex2 = glm::vec3(0, 1, 1);
-  //	}
-  //	else
-  //	{
-  //		iSimplex1 = glm::vec3(0, 1, 0);
-  //		iSimplex2 = glm::vec3(1, 1, 0);
-  //	}
-  //}
-
   // Surflet coords
   glm::vec3 surf1 = surf0 - iSimplex1 + glm::yyy(Skew); // G3
   glm::vec3 surf2 = surf0 - iSimplex2 + glm::xxx(Skew); // 2*(1/6) == (1/3) == F3
   glm::vec3 surf3 = surf0 -			        glm::zzz(Skew); // -1 + 3*(1/6) == -0.5
-  //glm::vec3 surf1 = surf0 - iSimplex1      + glm::vec3(1.f * G3); 
-  //glm::vec3 surf2 = surf0 - iSimplex2      + glm::vec3(2.f * G3); 
-  //glm::vec3 surf3 = surf0 - glm::vec3(1.f) + glm::vec3(3.f * G3); 
 
   glm::vec4 t = glm::max(0.6f - glm::vec4(glm::dot(surf0, surf0), glm::dot(surf1, surf1), glm::dot(surf2, surf2), glm::dot(surf3, surf3)), 0.f);
   glm::vec3 grad0, grad1, grad2, grad3;
@@ -219,13 +177,14 @@ glm::vec4 SimplexNoise3DGrad(const glm::vec3 p, int seed)
   deriv += t4.x * grad0 + t4.y * grad1 + t4.z * grad2 + t4.w * grad3;
 
   // GLSL version uses 105 here?
-  const float scalar = 46.f;
+  const float valueScalar = 46.f;
+  const float derivScalar = 7.9f;
 
   // x = noise value
   // y,z,w = derivative
-  return scalar * glm::vec4(
-    glm::dot(t4, grads),
-    deriv
+  return glm::vec4(
+    valueScalar * glm::dot(t4, grads),
+    derivScalar * deriv
   );
 }
 

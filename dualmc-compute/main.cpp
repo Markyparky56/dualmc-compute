@@ -32,7 +32,9 @@ int main()
       greyscaleNoise.push_back(grey);
 
       glm::vec3 deriv = glm::yzw(noise);
-      deriv = (deriv + 1.f) * 0.5f;
+      //float length = glm::length(deriv);
+      //deriv = (length == 0) ? glm::vec3(0, 0, 0) : deriv / length;
+      deriv = (deriv * 0.5f) + 0.5f;
       glm::ivec3 iDeriv = deriv * 255.f;
       analyticalnoiseDerivs.push_back((unsigned char)iDeriv.x);
       analyticalnoiseDerivs.push_back((unsigned char)iDeriv.y);
