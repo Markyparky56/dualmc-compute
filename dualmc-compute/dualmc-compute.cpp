@@ -1,11 +1,16 @@
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include "dualmc-compute.h"
 #include "glm/geometric.hpp"
 
 DualMCComputeFramework::DualMCComputeFramework()
   : TriangleCounter(0)
+  , CachedPointCounter(0)
 {
   PackDualPointsList();
   PackProblematicConfigs();
+
+  DualPointMap.resize(64 * 64 * 64, ~0ull); // 2^18, space for every possible morton id
+  PrecalculatedDualPoints.resize(34 * 34 * 34); // space for every cell's dual point
 }
 
 glm::uint DualMCComputeFramework::getProblematicConfigByteValue(int byteIndex)
@@ -147,8 +152,15 @@ glm::uint DualMCComputeFramework::getDualPointCode(glm::ivec3 cellPos, float iso
 
 glm::vec3 DualMCComputeFramework::calculateDualPoint(glm::ivec3 cellPos, float iso, glm::uint pointCode)
 {
+  glm::uint cellCode = morton3D(cellPos);
+  glm::vec3 outPos;
+  if (FindDualPoint(cellCode, outPos))
+  {
+    return outPos;
+  }
+
   // Initialise the point with lower voxel coordinates
-  glm::vec3 outPos = glm::vec3(cellPos);
+  outPos = glm::vec3(cellPos);
   
   // Return here to generate a cubed surface, the rest of this function moves the cell's feature point relative
   // to the surrounding cells
@@ -245,6 +257,9 @@ glm::vec3 DualMCComputeFramework::calculateDualPoint(glm::ivec3 cellPos, float i
   p /= glm::vec3((float)points);
   // Offset point by voxel coordinates
   outPos += p;
+
+  InsertNewDualPoint(morton3D(cellPos), outPos);
+
   return outPos;
 }
 
@@ -267,6 +282,11 @@ void DualMCComputeFramework::execute()
       }
     }
   }
+}
+
+int DualMCComputeFramework::getNumDualPointCodes() const
+{
+  return CachedPointCounter;
 }
 
 void DualMCComputeFramework::SetData(const std::array<glm::uint, VolumeDataSize>& inData)
@@ -507,4 +527,56 @@ void DualMCComputeFramework::PackProblematicConfigs()
     DualPoints.ProblematicConfigs[pack] |= (problematicConfigs[config+2]) << 16;
     DualPoints.ProblematicConfigs[pack] |= (problematicConfigs[config+3]) << 24;
   }
+}
+
+void DualMCComputeFramework::InsertNewDualPoint(uint32_t id, glm::vec3 p)
+{
+  id &= 0x3ffff; // Only want 18 bits
+  // Use linear probing to find an open bucket
+  while (true)
+  {
+    const uint64_t kv = DualPointMap[id];
+    // If kv is sentinel, we can insert there, else we keep incrementing until we find an unoccupied bucket
+    if (kv == ~0ull)
+    {
+      // atomicAdd returns current value then increments by given amount
+      glm::uint pointIdx = CachedPointCounter; CachedPointCounter += 1;
+      // Assign id and pointIdx
+      DualPointMap[id] = ((uint64_t)id << 32) | (pointIdx & 0xffffffff);
+      PrecalculatedDualPoints[pointIdx] = p;
+      return;
+    }
+    id = (id + 1) & 0x3ffff;
+  }
+}
+
+bool DualMCComputeFramework::FindDualPoint(uint32_t id, glm::vec3& outPoint)
+{
+  id &= 0x3ffff;
+  // Use linear probing to find the point for this id, if it exists
+  // If the matching bucket is filled, keep looking at the following buckets until we find one with the matching id
+  // If we find an empty bucket before finding the matching id, the point is not in the map
+  while (true)
+  {
+    const uint64_t& kv = DualPointMap[id];
+    if (kv != ~0ull)
+    {
+      // Occupied, check key
+      if (((kv >> 32) & 0x3ffff) == id)
+      {
+        // Found matching key, retrieve point index and return
+        const uint32_t idx = kv & 0xffffffff;
+        outPoint = PrecalculatedDualPoints[idx];
+        return true;
+      }
+      // Else, we increment id and keep looking
+      id = (id + 1) & 0x3ffff;
+    }
+    else // Equals sentinel value
+    {
+      break;
+    }
+  }
+
+  return false;
 }

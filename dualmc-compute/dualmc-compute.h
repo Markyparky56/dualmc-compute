@@ -1,5 +1,7 @@
 #pragma once
 #include <array>
+#include <unordered_map>
+#include <unordered_set>
 #include <tuple>
 #include "glm/vec3.hpp"
 #include "dualmc-dualpoints.h"
@@ -36,9 +38,11 @@ public:
   
   void execute();
 
+  int getNumDualPointCodes() const;
+
   // 64*64*64 is the maximum possible output from a 6-bit encoded morton code
   // TODO: work out the maximum output when we restrict the ranges to 36x36x36
-  static const size_t VolumeDataSize = (64 * 64 * 64)+1;
+  static const size_t VolumeDataSize = (64 * 64 * 64);
   void SetData(const std::array<glm::uint, VolumeDataSize>& inData);
 
   static const size_t MaxTriangleCount = 34*34*34*18;
@@ -52,6 +56,9 @@ protected:
 
   void PackDualPointsList();
   void PackProblematicConfigs();
+
+  void InsertNewDualPoint(uint32_t id, glm::vec3 p);
+  bool FindDualPoint(uint32_t id, glm::vec3& outPoint);
 
   // 6-bit morton encoding bumps us up to 63, even though we only use 36 in each dimension
   struct VolumeDataBuffer
@@ -73,4 +80,8 @@ protected:
     // Don't think this is possible
     std::array<Triangle, 34*34*34*18> Triangles;
   } TriangleOutput;
+
+  std::vector<uint64_t> DualPointMap;
+  std::vector<glm::vec3> PrecalculatedDualPoints;
+  glm::uint CachedPointCounter;
 };
