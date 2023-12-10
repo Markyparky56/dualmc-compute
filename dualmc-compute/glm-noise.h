@@ -59,12 +59,12 @@ T NoiseBillow(Func func, glm::vec3 p, int seed, int octaves, float lacunarity, f
   return sum * CalcFractalBounding(octaves, gain);
 }
 
-inline float NoiseBillow(glm::vec3 p, int seed, int octaves, float lacuranirty, float gain)
+inline float NoiseBillow(glm::vec3 p, int seed, int octaves, float lacunarity, float gain)
 {
-  return NoiseBillow<float>(&SimplexNoise3D, p, seed, octaves, lacuranirty, gain);
+  return NoiseBillow<float>(&SimplexNoise3D, p, seed, octaves, lacunarity, gain);
 }
 
-inline glm::vec4 NoiseBillowGrads(glm::vec3 p, int seed, int octaves, float lacuranity, float gain)
+inline glm::vec4 NoiseBillowGrads(glm::vec3 p, int seed, int octaves, float lacunarity, float gain)
 {
-  return NoiseBillow<glm::vec4>(&SimplexNoise3DGrad, p, seed, octaves, lacuranity, gain);
+  return NoiseBillow<glm::vec4>(&SimplexNoise3DGrad, p, seed, octaves, lacunarity, gain);
 }
